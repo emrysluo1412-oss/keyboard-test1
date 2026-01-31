@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Inventory Scan Bug Repro",
+  "description": "A reproduction of a specific inventory scanning interface to test numeric keyboard behavior on Android devices.",
+  "requestFramePermissions": []
+}
