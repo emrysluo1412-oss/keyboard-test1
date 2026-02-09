@@ -107,17 +107,19 @@ const InventoryScreen: React.FC = () => {
         {/* Input Row */}
         <div className="flex gap-3 px-4 mb-3 items-stretch h-12">
           {/* 
-            CRITICAL PART FOR REPRODUCTION:
-            Using standard numeric input attributes. 
-            - inputMode="numeric" triggers the number pad on mobile.
-            - pattern="[0-9]*" is an older iOS/Android fallback for number pads.
-            - type="number" is the semantic type.
+            UPDATED:
+            - pattern="\d*" forces numeric keyboard on iOS/Android
+            - step="1" enforces integers (prevents decimal point in some keyboards)
+            - min="0" enforces positive numbers
+            - inputMode="numeric" is the standard modern trigger
           */}
           <input
             ref={inputRef}
             type="number"
             inputMode="numeric"
-            pattern="[0-9]*"
+            pattern="\d*"
+            step="1"
+            min="0"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             onFocus={handleFocus}
