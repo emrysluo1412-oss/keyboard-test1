@@ -2,41 +2,36 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-const logStatus = (msg: string) => {
-  const log = document.getElementById('status-log');
-  if (log) {
+const log = (msg: string, isError: boolean = false) => {
+  const el = document.getElementById('status-log');
+  if (el) {
     const time = new Date().toLocaleTimeString();
-    log.innerHTML += `<div>[${time}] ${msg}</div>`;
+    el.innerHTML += `<div style="${isError ? 'color: #ff5555' : ''}">[${time}] ${msg}</div>`;
   }
-  console.log(msg);
 };
 
-logStatus('Module index.tsx loaded');
+try {
+  log('Module index.tsx executing...');
+  const rootElement = document.getElementById('root');
+  if (!rootElement) throw new Error('Root element #root missing');
 
-const rootElement = document.getElementById('root');
+  const root = createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
 
-if (!rootElement) {
-  logStatus('Critical: Root element not found');
-} else {
-  try {
-    logStatus('Attempting to create root...');
-    const root = createRoot(rootElement);
-    logStatus('Root created, rendering...');
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    );
-    logStatus('Render command sent');
-    
-    // 如果渲染成功，5秒后自动隐藏调试层
-    setTimeout(() => {
-       const overlay = document.getElementById('status-overlay');
-       if (overlay) overlay.style.opacity = '0.3';
-    }, 5000);
+  (window as any).APP_STARTED = true;
+  log('App rendered successfully');
 
-  } catch (err: any) {
-    logStatus(`Mount Error: ${err.message}`);
-    console.error(err);
-  }
+  // 成功运行后 8 秒淡出调试条
+  setTimeout(() => {
+    const overlay = document.getElementById('status-overlay');
+    if (overlay) overlay.style.opacity = '0.4';
+  }, 8000);
+
+} catch (err: any) {
+  log(`Critical Error: ${err.message}`, true);
+  console.error(err);
 }
