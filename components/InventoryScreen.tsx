@@ -1,154 +1,132 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Wifi, BatteryMedium, MoreVertical, ChevronDown, ScanLine } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { 
+  ArrowLeft, 
+  Wifi, 
+  BatteryMedium, 
+  ChevronDown, 
+  ScanLine,
+  AlertCircle
+} from 'lucide-react';
 
 const InventoryScreen: React.FC = () => {
   const [quantity, setQuantity] = useState<string>('1');
-  const [debugLog, setDebugLog] = useState<string[]>([]);
+  const [logs, setLogs] = useState<string[]>(['App started']);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Helper to log events for debugging on device
-  const log = (msg: string) => {
-    setDebugLog(prev => [msg, ...prev].slice(0, 5));
-    console.log(msg);
+  const addLog = (msg: string) => {
+    setLogs(prev => [msg, ...prev].slice(0, 3));
   };
 
-  const handleFocus = () => {
-    log('Input Focused');
-  };
-
+  const handleFocus = () => addLog('Input Focus Triggered');
+  const handleBlur = () => addLog('Input Blur Triggered');
   const handleClick = () => {
-    log('Input Clicked');
-    // Force focus logic sometimes helps on buggy WebViews
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    addLog('Manual Click Triggered');
+    // 在某些 Bug WebView 中手动调用 focus 有助于弹出键盘
+    inputRef.current?.focus();
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 text-slate-800 font-sans select-none">
-      {/* Status Bar Replica (Visual only) */}
-      <div className="bg-slate-50 px-4 py-1 flex justify-between items-center text-xs text-gray-500">
-        <span>13:22 ⚙️</span>
+    <div className="flex flex-col h-screen bg-slate-50 text-slate-800 overflow-hidden">
+      {/* 模拟状态栏 */}
+      <div className="bg-slate-100 px-4 py-1 flex justify-between items-center text-[10px] text-gray-500 font-bold">
+        <span>15:45</span>
         <div className="flex items-center gap-1">
-          <Wifi size={14} />
-          <BatteryMedium size={14} />
+          <Wifi size={10} />
+          <BatteryMedium size={10} />
         </div>
       </div>
 
-      {/* Header */}
-      <div className="flex items-center justify-between px-2 py-3 bg-slate-50 relative border-b border-gray-100">
-        <button className="p-2 text-gray-600">
-          <ArrowLeft size={24} />
-        </button>
-        
-        <div className="flex space-x-6 text-sm font-medium uppercase absolute left-1/2 transform -translate-x-1/2">
-          <span className="text-blue-500 border-b-2 border-blue-500 pb-1">SCAN</span>
-          <span className="text-gray-400">Товары</span>
+      {/* 头部导航 */}
+      <div className="flex items-center justify-between px-2 py-3 bg-white border-b border-gray-200">
+        <ArrowLeft size={24} className="text-gray-600" />
+        <div className="flex gap-4">
+          <span className="text-blue-600 border-b-2 border-blue-600 font-bold text-xs pb-1">扫描</span>
+          <span className="text-gray-400 font-bold text-xs pb-1">商品清单</span>
         </div>
-
-        <button className="p-2 text-gray-600">
-          <ScanLine size={24} />
-        </button>
+        <ScanLine size={24} className="text-gray-600" />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-20">
-        {/* Product Title */}
-        <h1 className="text-xl font-medium text-slate-700 leading-snug mb-6 uppercase">
-          ВОДА ПИТЬЕВАЯ ШИШКИН<br />ЛЕС 5Л
-        </h1>
+      {/* 主内容区 */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div>
+          <h1 className="text-lg font-bold text-slate-700 uppercase leading-tight">
+            复现：键盘弹出问题测试
+          </h1>
+          <p className="text-xs text-gray-500 mt-1 text-red-500">点击下方输入框测试键盘是否弹出</p>
+        </div>
 
-        {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-slate-100 p-3 rounded-lg flex flex-col items-center justify-center">
-            <span className="text-xs text-gray-400 mb-1">остаток</span>
-            <span className="text-lg font-bold text-slate-700">13 шт.</span>
+        {/* 商品信息卡片 */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-white p-3 rounded border border-gray-200 shadow-sm text-center">
+            <div className="text-[10px] text-gray-400 uppercase">当前库存</div>
+            <div className="text-lg font-bold">13 件</div>
           </div>
-          <div className="bg-slate-100 p-3 rounded-lg flex flex-col items-center justify-center">
-            <span className="text-xs text-gray-400 mb-1">ср. вес шт.</span>
-            <span className="text-lg font-bold text-slate-700">- шт.</span>
+          <div className="bg-white p-3 rounded border border-gray-200 shadow-sm text-center">
+            <div className="text-[10px] text-gray-400 uppercase">平均重量</div>
+            <div className="text-lg font-bold">-</div>
           </div>
         </div>
 
-        {/* Section Header */}
-        <h2 className="text-base font-semibold text-slate-500 mb-4">
-          Выбор причины списания
-        </h2>
-
-        {/* Dropdowns Form */}
-        <div className="space-y-4">
-          {/* Field 1 */}
+        {/* 下拉选择 */}
+        <div className="space-y-3">
           <div>
-            <label className="block text-xs text-gray-400 mb-1 pl-1">Статья</label>
-            <div className="relative">
-              <div className="w-full bg-blue-100/50 p-3 rounded-lg text-slate-700 text-sm flex justify-between items-center border border-blue-100">
-                <span>116 - Срок годности</span>
-                <ChevronDown size={18} className="text-gray-400" />
-              </div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">类别</label>
+            <div className="w-full bg-blue-50 border border-blue-100 p-3 rounded flex justify-between items-center text-sm">
+              <span>116 - 过期损耗</span>
+              <ChevronDown size={16} />
             </div>
           </div>
-
-          {/* Field 2 */}
           <div>
-            <label className="block text-xs text-gray-400 mb-1 pl-1">Причина</label>
-            <div className="relative">
-              <div className="w-full bg-blue-100/50 p-3 rounded-lg text-slate-700 text-sm flex justify-between items-center border border-blue-100">
-                <span>141 - СГ</span>
-                <ChevronDown size={18} className="text-gray-400" />
-              </div>
+            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">原因</label>
+            <div className="w-full bg-blue-50 border border-blue-100 p-3 rounded flex justify-between items-center text-sm">
+              <span>141 - 包装破损</span>
+              <ChevronDown size={16} />
             </div>
           </div>
         </div>
+
+        {/* 调试日志：帮助判断点击是否生效 */}
+        <div className="bg-slate-900 text-green-400 p-2 rounded text-[10px] font-mono min-h-[60px]">
+          <div className="text-white border-b border-slate-700 mb-1 pb-1 flex justify-between">
+            <span>事件记录 (EVENT LOG)</span>
+            <AlertCircle size={10} />
+          </div>
+          {logs.map((log, i) => <div key={i}>&gt; {log}</div>)}
+        </div>
       </div>
 
-      {/* Fixed Footer Area */}
-      <div className="absolute bottom-0 w-full bg-white border-t border-gray-100 pb-4 pt-2">
-        
-        {/* Input Row */}
-        <div className="flex gap-3 px-4 mb-3 items-stretch h-12">
+      {/* 底部固定区域 */}
+      <div className="bg-white border-t border-gray-200 p-4 space-y-3">
+        <div className="flex gap-2">
           {/* 
-            UPDATED:
-            - pattern="\d*" forces numeric keyboard on iOS/Android
-            - step="1" enforces integers (prevents decimal point in some keyboards)
-            - min="0" enforces positive numbers
-            - inputMode="numeric" is the standard modern trigger
+            关键输入框：
+            使用多种属性尝试强制触发数字键盘
           */}
           <input
             ref={inputRef}
             type="number"
             inputMode="numeric"
             pattern="\d*"
-            step="1"
-            min="0"
             value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
             onFocus={handleFocus}
+            onBlur={handleBlur}
             onClick={handleClick}
-            className="flex-1 text-center text-xl text-slate-700 border-2 border-indigo-400 rounded-md focus:outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-200 transition-all"
+            onChange={(e) => setQuantity(e.target.value)}
+            className="w-24 text-center text-2xl font-bold border-2 border-indigo-500 rounded-lg p-2 focus:ring-4 focus:ring-indigo-200 outline-none transition-all"
+            placeholder="0"
           />
-          
           <button 
-            onClick={() => log(`Submitted: ${quantity}`)}
-            className="px-6 bg-green-500 hover:bg-green-600 active:bg-green-700 text-white font-medium rounded-md text-sm transition-colors shadow-sm"
+            className="flex-1 bg-green-500 active:bg-green-600 text-white font-bold rounded-lg uppercase text-sm shadow-md"
+            onClick={() => addLog(`确认数量: ${quantity}`)}
           >
-            Добавить в акт
+            添加到清单
           </button>
         </div>
-
-        {/* Bottom Alert/Notification */}
-        <div className="px-4">
-          <div className="bg-green-100 text-green-700 text-xs py-2 px-3 rounded-md flex items-center justify-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500 block"></span>
-            <span>Товары без ШК (Сегодня в 13:09)</span>
-          </div>
+        
+        <div className="bg-green-50 border border-green-100 p-2 rounded flex items-center justify-center gap-2 text-[10px] text-green-700">
+           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+           设备在线同步中: 13:09
         </div>
-
-        {/* Debug Info (Hidden visually usually, but useful here) */}
-        {debugLog.length > 0 && (
-          <div className="bg-black text-green-400 text-[10px] p-1 font-mono mt-2 mx-4 rounded opacity-70 pointer-events-none">
-            {debugLog.map((l, i) => <div key={i}>{l}</div>)}
-          </div>
-        )}
       </div>
     </div>
   );

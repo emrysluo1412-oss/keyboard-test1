@@ -3,24 +3,31 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>Inventory Bug Repro</title>
+    <title>Repro: Keyboard Bug</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      /* Removing spin buttons for number inputs */
+      body { background-color: #f3f4f6; margin: 0; padding: 0; font-family: sans-serif; }
+      #status-overlay {
+        position: fixed; top: 0; left: 0; right: 0; padding: 10px;
+        background: rgba(0,0,0,0.8); color: white; font-family: monospace;
+        font-size: 10px; z-index: 9999; pointer-events: none;
+      }
       input[type=number]::-webkit-inner-spin-button, 
-      input[type=number]::-webkit-outer-spin-button { 
-        -webkit-appearance: none; 
-        margin: 0; 
-      }
-      input[type=number] {
-        -moz-appearance: textfield;
-      }
-      /* Prevent touch gestures from interfering with the UI on industrial handhelds */
-      body {
-        touch-action: manipulation;
-      }
+      input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
-  <script type="importmap">
+    <script>
+      // 早期错误捕获，针对旧设备或 CDN 加载失败
+      window.onerror = function(msg, url, lineNo, columnNo, error) {
+        var log = document.getElementById('status-log');
+        if (log) log.innerHTML += '<div style="color: #ff5555">Error: ' + msg + '</div>';
+        return false;
+      };
+      window.addEventListener('unhandledrejection', function(event) {
+        var log = document.getElementById('status-log');
+        if (log) log.innerHTML += '<div style="color: #ff5555">Promise Error: ' + event.reason + '</div>';
+      });
+    </script>
+    <script type="importmap">
 {
   "imports": {
     "react": "https://esm.sh/react@18.2.0",
@@ -32,8 +39,11 @@
   }
 }
 </script>
-</head>
-  <body class="bg-gray-100 overflow-hidden">
+  </head>
+  <body>
+    <div id="status-overlay">
+      <div id="status-log">System: Initializing...</div>
+    </div>
     <div id="root"></div>
   </body>
 </html>
